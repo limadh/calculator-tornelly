@@ -1,0 +1,248 @@
+<html>
+	<head>
+		<script src="jquery-3.6.0.min.js"></script>
+		<script>
+			$(document).ready(function(){
+				$('#btnCalculate').click(function() {
+					$('#msgError').html('');
+					var gender = $('input[name="opcGender"]:checked').val();
+					if(gender == null || gender == ""){
+						calc.errorRequiredField("gender");
+					}else{
+						if(gender == "m"){
+							calc.calcMan();
+						}else{
+							calc.calcWomen();
+						}
+					}
+				});
+			});
+			
+			var calc = {			
+				init: function(){
+					$("#textMan").hide();
+					$("#textWomen").hide();
+				},
+				gender: null,
+				age: null,
+				weight: null,
+				height: null,
+				neck: null,
+				waist: null,
+				hip: null,
+				NA: null,
+				protocol: null,
+				caloricExpenditure: null,
+				bf: null,
+				
+				setFields: function(){
+					calc.gender = $('input[name="opcGender"]:checked').val();
+					calc.age = $("#txtAge").val();
+					calc.weight = $("#txtWeight").val();
+					calc.height = $("#txtHeight").val();
+					calc.neck = $("#txtNeck").val();
+					calc.waist = $("#txtWaist").val();
+					calc.hip = $("#txtHip").val();
+					calc.NA = $("#selectAtiveLevel option:selected").val();
+					calc.protocol = $("#selectProtocol option:selected").val();
+				},				
+				cleanFields: function (){
+					$('#txtBodyFat').val('');
+				},				
+				calcMan: function(){
+					calc.cleanFields();
+					calc.setFields();					
+					let multiplicationWeight = 13.75 * calc.weight;
+					let multiplicationHeight = 5 * calc.height;
+					let multiplicationAge = 6.76 * calc.age;
+					let calcFields = multiplicationWeight + multiplicationHeight;
+					calcFields = calcFields - multiplicationAge;
+					calcFields = calcFields + 66;
+					calc.caloricExpenditure = calc.NA * calcFields;
+					
+					let log10WN = Math.log10(calc.waist - calc.neck);
+					let log10H = Math.log10(calc.height);					
+					let multiplicationOne = 0.19077 * log10WN;
+					let multiplicationTwo = 0.15456 * log10H;
+					let calcBf = 1.0324 - multiplicationOne + multiplicationTwo;
+					calcBf = 495 / calcBf - 450;					
+					calc.bf = calcBf;
+					calc.showResults();
+				},
+				calcWomen: function(){
+				
+				/*
+				%BF = 495 / ( 1.29579 - 0.35004 * log10( waist + hip - neck ) + 0.22100 * log10( height ) ) - 450
+
+				*/
+					calc.showResults();
+				},
+				showResults: function(){
+					if(calc.gender == "m"){
+						$("#textMan").show();
+						$("#textWomen").hide();
+					}else{
+						$("#textMan").hide();
+						$("#textWomen").show();
+					}
+					$('#txtBodyFat').val(calc.bf + "%");
+				},
+				onlyNumber: function(evt){
+					var theEvent = evt || window.event;
+					var key = theEvent.keyCode || theEvent.which;
+					key = String.fromCharCode( key );
+					var regex = /^[0-9.]+$/;
+				   if( !regex.test(key) ) {
+					  theEvent.returnValue = false;
+					  if(theEvent.preventDefault) theEvent.preventDefault();
+				   }
+				},				
+				errorRequiredField: function(fild){
+					$('#msgError').html('');
+					let msg = fild + "Field is required";
+					$('#msgError').html(msg);
+				}			
+			}			
+			calc.init();
+		</script>
+	</head>
+	<body>
+		<table align="center" width="600">
+			<tr>
+				<td><label>Gender:</label></td>
+				<td>
+					Man<input type="radio" name="opcGender" value="m">
+					Women<input type="radio" name="opcGender" value="w">
+				</td>
+			</tr>
+			<tr>
+				<td><label>Age:</label></td>
+				<td><input type="text" id="txtAge" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>Weight:</label></td>
+				<td><input type="text" id="txtWeight" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>Height:</label></td>
+				<td><input type="text" id="txtHeight" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>Neck (cm):</label></td>
+				<td><input type="text" id="txtNeck" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>Waist (cm):</label></td>
+				<td><input type="text" id="txtWaist" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>*Hip (cm):</label></td>
+				<td><input type="text" id="txtHip" onkeypress="return calc.onlyNumber();" /></td>
+			</tr>
+			<tr>
+				<td><label>Activite Level:</label></td>
+				<td>
+					<select id="selectAtiveLevel">
+						<option value="1.2">Sedentary</option>
+						<option value="1.375">Light Activite</option>
+						<option value="1.55">Moderate Activite</option>
+						<option value="1.725">Heavy Activite</option>
+						<option value="1.9">Extreme Activite</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><label>Protocol</label></td>
+				<td>
+					<select id="selectProtocol">
+						<option value="b">Bulking</option>
+						<option value="c">Cutting</option>
+					</select>
+				</td>
+			</tr>
+			<tr align="right">
+				<td></td>
+				<td><input type="button" value="Calculate" id="btnCalculate" /></td>
+			</tr>
+			<tr align="right">
+				<td></td>
+				<td><span id="msgError"></span></td>
+			</tr>
+			<tr>
+				<td><label>Body Fat:</label></td>
+				<td><input type="text" disabled id="txtBodyFat" /></td>
+			</tr>
+			<tr>
+				<td><label>Protocol:</label></td>
+				<td>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label>Daily Calories Intake (Workout days):</label></td>
+				<td><input type="text" disabled /></td>
+			</tr>
+			<tr>
+				<td><label>Daily Calories Intake (Rest days):</label></td>
+				<td><input type="text" disabled /></td>
+			</tr>
+			<tr>
+				<td><label></label></td>
+				<td>
+					<div id="textMan" style="display:none;">
+						<h4>
+							There is no ideal body fat percentage that all men should aim for. If you are working toward a specific goal (especially in competitive athletics), it's best to follow expert advice. For general fitness goals, use the following rough guidelines:
+						</h4>
+						<ul>
+							<li>
+								<span>
+									A typical healthy man can have anywhere from 8 to 20% body fat (11–22% if over 40 years old, or 13–25% if over 60).
+								</span>
+							</li>
+							<li>
+								<span>
+									Men with a body fat percentage of 20% or higher may be at risk for weight-related health problems. 25% or higher may be classified as obese.
+								</span>
+							</li>
+							<li>
+								<span>
+									Athletes vary by sport, with the leanest (such as cyclists and bodybuilders) typically around 5–10%.
+								</span>
+							</li>
+							<li>
+								<span>
+									Men typically carry about 2-5% of essential body fat. Falling below your essential body fat percentage is dangerous. Your body's fat stores have an active role in the regular functioning and protection of your body.
+								</span>
+							</li>
+						</ul>
+					</div>
+					<div id="textWomen" style="display:none;">					
+						<h4>Use these guidelines as a starting point to determine whether you are at a healthy body fat percentage:</h4>
+						<ul>
+							<li>
+								<span>
+									A body fat percentage above 33% (if under 40 years old) may be considered overweight, while 39% or higher puts you in the highest risk category.
+								</span>
+							</li>
+							<li>
+								<span>
+									A typical healthy woman has a body fat percentage between 21 and 33% (23–34% if over age 40, or 24–36% if over 60).
+								</span>
+							</li>
+							<li>
+								<span>
+									Female athletes typically have a body fat of 14–20%, varying by sport.
+								</span>
+							</li>
+							<li>
+								<span>
+									Women typically carry about 10-12% of essential body fat. Falling below this can be dangerous.
+								</span>
+							</li>
+						</ul>					
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
