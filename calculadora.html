@@ -48,6 +48,9 @@
 				},				
 				cleanFields: function (){
 					$('#txtBodyFat').val('');
+					$('#txtDailyCaloriesIntake').val('');
+					$('#txtDailyCaloriesIntakeRestDays').val('');
+					$('#txtProtocol').val('');
 				},				
 				calcMan: function(){
 					calc.cleanFields();
@@ -59,7 +62,11 @@
 					calcFields = calcFields - multiplicationAge;
 					calcFields = calcFields + 66;
 					calc.caloricExpenditure = calc.NA * calcFields;
-					
+					if(calc.protocol == 'b'){
+						calc.caloricExpenditure = calc.caloricExpenditure + 200;
+					}else{
+						calc.caloricExpenditure = calc.caloricExpenditure - 200;
+					}					
 					let log10WN = Math.log10(calc.waist - calc.neck);
 					let log10H = Math.log10(calc.height);					
 					let multiplicationOne = 0.19077 * log10WN;
@@ -86,6 +93,9 @@
 						$("#textWomen").show();
 					}
 					$('#txtBodyFat').val(calc.bf + "%");
+					$('#txtDailyCaloriesIntake').val(calc.caloricExpenditure);
+					$('#txtDailyCaloriesIntakeRestDays').val(calc.caloricExpenditure - 200);					
+					$('#txtProtocol').val($('#selectProtocol :selected').text());								
 				},
 				onlyNumber: function(evt){
 					var theEvent = evt || window.event;
@@ -111,8 +121,8 @@
 			<tr>
 				<td><label>Gender:</label></td>
 				<td>
-					Man<input type="radio" name="opcGender" value="m">
-					Women<input type="radio" name="opcGender" value="w">
+					<input type="radio" name="opcGender" value="m">Man
+					<input type="radio" name="opcGender" value="w">Women
 				</td>
 			</tr>
 			<tr>
@@ -174,21 +184,18 @@
 			</tr>
 			<tr>
 				<td><label>Protocol:</label></td>
-				<td>
-					
-				</td>
+				<td><input type="text" disabled id="txtProtocol" /></td>
 			</tr>
 			<tr>
 				<td><label>Daily Calories Intake (Workout days):</label></td>
-				<td><input type="text" disabled /></td>
+				<td><input type="text" disabled id="txtDailyCaloriesIntake" /></td>
 			</tr>
 			<tr>
 				<td><label>Daily Calories Intake (Rest days):</label></td>
-				<td><input type="text" disabled /></td>
+				<td><input type="text" id="txtDailyCaloriesIntakeRestDays" disabled /></td>
 			</tr>
 			<tr>
-				<td><label></label></td>
-				<td>
+				<td colspan="2">
 					<div id="textMan" style="display:none;">
 						<h4>
 							There is no ideal body fat percentage that all men should aim for. If you are working toward a specific goal (especially in competitive athletics), it's best to follow expert advice. For general fitness goals, use the following rough guidelines:
