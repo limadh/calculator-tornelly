@@ -21,7 +21,7 @@
 				calculate: function(){
 					$('#msgError').html('');
 					calc.cleanFields();
-					calc.setFields();					
+					calc.setFields();		
 					if(calc.gender == null || calc.gender == ""){
 						calc.errorRequiredField("gender");
 					}else{
@@ -53,6 +53,8 @@
 					calc.hip = null;
 					calc.NA = null;
 					calc.protocol = null;
+					calc.caloricExpenditure = null;
+					calc.bf = null;
 					$('#txtBodyFat').val('');
 					$('#txtDailyCaloriesIntake').val('');
 					$('#txtDailyCaloriesIntakeRestDays').val('');
@@ -92,14 +94,14 @@
 						calc.caloricExpenditure = calc.caloricExpenditure + 200;
 					}else{
 						calc.caloricExpenditure = calc.caloricExpenditure - 200;
-					}
-					let log10WHN = Math.log10(calc.waist + calc.hip - calc.neck);
-					let log10H = Math.log10(calc.height);
-					let multiplicationLog10WHN = 0.35004 * log10WHN;
-					let multiplicationLog10H = 0.22100 * log10H;
-					let calcAddition = multiplicationLog10WHN + multiplicationLog10H;
-					let calcBf = 1.29579 -  calcAddition;
-					calcBf = 495 / calcBf - 450;
+					}					
+					let calcWHN = parseInt(calc.waist) + parseInt(calc.hip) - parseInt(calc.neck);					
+					let log10WHN = Math.log10(calcWHN);
+					let log10H = Math.log10(calc.height);					
+					let multiplicationLog10WHN = 0.35004 * log10WHN;					
+					let multiplicationLog10H = 0.22100 * log10H;					
+					let calcAddition = 1.29579 - multiplicationLog10WHN + multiplicationLog10H;					
+					calcBf = 495 / calcAddition - 450;
 					calc.bf = calcBf;
 					calc.showResults();
 				},
