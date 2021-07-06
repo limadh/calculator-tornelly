@@ -20,8 +20,9 @@
 				bf: null,
 				calculate: function(){
 					$('#msgError').html('');
+					$("#trMsgError").hide();				
 					calc.cleanFields();
-					calc.setFields();		
+					calc.setFields();
 					if(calc.gender == null || calc.gender == ""){
 						calc.errorRequiredField("gender");
 					}else{
@@ -34,12 +35,12 @@
 				},
 				setFields: function(){
 					calc.gender = $('input[name="opcGender"]:checked').val();
-					calc.age = $("#txtAge").val();
-					calc.weight = $("#txtWeight").val();
-					calc.height = $("#txtHeight").val();
-					calc.neck = $("#txtNeck").val();
-					calc.waist = $("#txtWaist").val();
-					calc.hip = $("#txtHip").val();
+					calc.age = parseInt($("#txtAge").val());
+					calc.weight = parseInt($("#txtWeight").val());
+					calc.height = parseInt($("#txtHeight").val());
+					calc.neck = parseInt($("#txtNeck").val());
+					calc.waist = parseInt($("#txtWaist").val());
+					calc.hip = parseInt($("#txtHip").val());
 					calc.NA = $("#selectAtiveLevel option:selected").val();
 					calc.protocol = $("#selectProtocol option:selected").val();
 				},				
@@ -73,28 +74,29 @@
 					}else{
 						calc.caloricExpenditure = calc.caloricExpenditure - 200;
 					}
+					calc.caloricExpenditure = Math.ceil(calc.caloricExpenditure);
 					let log10WN = Math.log10(calc.waist - calc.neck);
 					let log10H = Math.log10(calc.height);					
 					let multiplicationOne = 0.19077 * log10WN;
 					let multiplicationTwo = 0.15456 * log10H;
 					let calcBf = 1.0324 - multiplicationOne + multiplicationTwo;
 					calcBf = 495 / calcBf - 450;					
-					calc.bf = calcBf;
+					calc.bf = Math.ceil(calcBf);
 					calc.showResults();
 				},
 				calcWoman: function(){
-					let multiplicationWeight = 9.56 * calc.weight;
-					let multiplicationHeight = 1.85 * calc.height;
-					let multiplicationAge = 4.68 * calc.age;
-					let addition = multiplicationWeight + multiplicationHeight;
-					let addition2 = multiplicationAge + 665;
-					let calcFields = addition - addition2;					
-					calc.caloricExpenditure = calc.NA * calcFields;
+					let multiplicationWeight = 9.56 * parseInt(calc.weight);
+					let multiplicationHeight = 1.85 * parseInt(calc.height);
+					let multiplicationAge = 4.68 * parseInt(calc.age);
+					let addition = multiplicationWeight + multiplicationHeight - multiplicationAge;
+					let addition2 = addition + 665;
+					calc.caloricExpenditure = calc.NA * addition2;
 					if(calc.protocol == 'b'){
 						calc.caloricExpenditure = calc.caloricExpenditure + 200;
 					}else{
 						calc.caloricExpenditure = calc.caloricExpenditure - 200;
-					}					
+					}
+					calc.caloricExpenditure = Math.ceil(calc.caloricExpenditure);
 					let calcWHN = parseInt(calc.waist) + parseInt(calc.hip) - parseInt(calc.neck);					
 					let log10WHN = Math.log10(calcWHN);
 					let log10H = Math.log10(calc.height);					
@@ -102,7 +104,7 @@
 					let multiplicationLog10H = 0.22100 * log10H;					
 					let calcAddition = 1.29579 - multiplicationLog10WHN + multiplicationLog10H;					
 					calcBf = 495 / calcAddition - 450;
-					calc.bf = calcBf;
+					calc.bf = Math.ceil(calcBf);
 					calc.showResults();
 				},
 				showResults: function(){
@@ -129,6 +131,7 @@
 				   }
 				},				
 				errorRequiredField: function(fild){
+					$("#trMsgError").show();
 					$('#msgError').html('');
 					let msg = fild + "Field is required";
 					$('#msgError').html(msg);
@@ -138,12 +141,12 @@
 		</script>
 	</head>
 	<body>
-		<table align="center" width="600">
+		<table align="center" width="600" style="border:none;">
 			<tr>
 				<td><label>Gender:</label></td>
 				<td>
 					<input type="radio" name="opcGender" value="m">Man
-					<input type="radio" name="opcGender" value="w">Women
+					<input type="radio" name="opcGender" value="w">Woman
 				</td>
 			</tr>
 			<tr>
@@ -195,7 +198,7 @@
 				<td></td>
 				<td><input type="button" value="Calculate" id="btnCalculate" onclick="calc.calculate()" /></td>
 			</tr>
-			<tr align="right">
+			<tr align="right" style="display:none;" id="trMsgError">
 				<td></td>
 				<td><span id="msgError"></span></td>
 			</tr>
